@@ -6,20 +6,106 @@
                 background-image: url("QuestionsBackground.png");
             }
 
-            .questions  {
+            .answers  {
+                margin-left: 25px;
                 width: 350px;
                 height: 150px;
                 background-color: yellow;
                 display: inline-block;
+                text-align: center;
+                font-size:x-large;
+                vertical-align: middle;
+                line-height: 150px;       /* The same as your div height */
+                border-radius: 25px;
             }
+        #question {
+            font-family: "Comic Sans MS", "Comic Sans", cursive;
+            font-size: 36px;
+        }
+
         </style>
+
+        <script>
+            const pages = [
+                {page:
+                    {
+                        pageId:1, question:"Would you like to payoff your debt?",
+                        answers:[{pageId:2, answer:"Yes"},{pageId:3, answer:"No"}]
+                    }
+                }
+            ];
+
+            function setPageElements(page) {
+                const h1Question = document.getElementById("question");
+                console.log(h1Question);
+                h1Question.innerText=page.question;
+                
+                
+                const q1 = document.getElementById("q1");
+                const q2 = document.getElementById("q2");
+                const q3 = document.getElementById("q3");
+                console.log();
+                if (page.answers.length==3)
+                {
+                    q3.style.display='inline-block';
+                    q3.innerText = page.answers[2].answer
+                }
+                else 
+                {
+                    q3.style.display='none';
+                }
+
+                q1.innerText = page.answers[0].answer;
+                q2.innerText = page.answers[1].answer;
+
+            }
+
+            let init = function (){
+                const startingPage = {
+                        pageId:1, question:"Would you like to payoff your debt?",
+                        answers:[
+                                 {pageId:2, answer:"Yes"},
+                                 {pageId:3, answer:"No"}
+                                ]
+                    };
+            
+                setPageElements(startingPage);
+
+                document.getElementById('q1').addEventListener('click', function (event) {
+                    // do something
+                });
+            }
+
+
+        function callInitWhenComplete(action) {
+            const checkStateBeforeCalling = function() {
+                if (document.readyState !== 'complete') {
+                    return;
+                }
+                action();
+            }
+
+            if (document.readyState !== 'complete') {
+                // either loading or interactive, either way wait to show popup
+                document.addEventListener('readystatechange', checkStateBeforeCalling);
+            } else {
+                // dom is loaded
+                action();
+            }
+        }
+
+        callInitWhenComplete(init);
+
+         
+        </script>
+
     </head>
 <body>
-<h1>Asking Questions</h1>
-<p>
-    <div id="q1" class="questions">Yes</div>
-    <div id="q2" class="questions">No</div>
-    <div id="q3" class="questions" style="display: hidden;"></div>
-</p>
+    <h1 id="question">Hey John, get to work and type faster?</h1>
+    <div style="margin-top: 60px;">
+    <div id="q1" class="answers">Q1</div>
+    <div id="q2" class="answers">Q2</div>
+    <div id="q3" class="answers" style="display:none;">Q3</div>
+</div>
 </body>
 </html>
