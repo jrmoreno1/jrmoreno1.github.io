@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="HomeOwnersOdessyPages.js"></script>
         <style>
             body {
                 background-image: url("QuestionsBackground.png");
+                background-size: cover;
             }
 
             .answers  {
@@ -18,62 +20,128 @@
                 line-height: 150px;       /* The same as your div height */
                 border-radius: 25px;
             }
-        #question {
-            font-family: "Comic Sans MS", "Comic Sans", cursive;
-            font-size: 36px;
-        }
+
+            .disableAnswer {
+                background-color: grey;
+            }
+
+            #question {
+                font-family: "Comic Sans MS", "Comic Sans", cursive;
+                font-size: 36px;
+            }
 
         </style>
 
         <script>
-            const pages = [
-                {page:
-                    {
-                        pageId:1, question:"Would you like to payoff your debt?",
-                        answers:[{pageId:2, answer:"Yes"},{pageId:3, answer:"No"}]
-                    }
-                }
-            ];
+            
 
-            function setPageElements(page) {
+            function setPageElements(page, score, disableAnswer) {
+
+                console.log("setPageElements.score", score);
+                console.log("setPageElements.disableAnswer", disableAnswer);
+                disableAnswer = disableAnswer || -1;
+
+                score = score || 0;
+
+                const scoreElem = document.getElementById("score");
+                var scoreTotal = Number(scoreElem.getAttribute('data-score'));
+                
+                scoreTotal = scoreTotal + Number(score);
+
+                scoreElem.setAttribute('data-score', scoreTotal.toString());
+
+
+                const currentPageElem = document.getElementById("currentPageId");
+                currentPageElem.setAttribute('data-pageId', page.pageId.toString());
+
+
                 const h1Question = document.getElementById("question");
-                console.log(h1Question);
                 h1Question.innerText=page.question;
                 
+                const a1 = document.getElementById("a1");
+                const a2 = document.getElementById("a2");
+                const a3 = document.getElementById("a3");
+
+                a1.classList.remove("disableAnswer");
+                a2.classList.remove("disableAnswer");
+                a3.classList.remove("disableAnswer");
+
+                if (disableAnswer>-1){
+                     answerToDisable =[a1,a2,a3][disableAnswer].classList.add("disableAnswer");
+                }
                 
-                const q1 = document.getElementById("q1");
-                const q2 = document.getElementById("q2");
-                const q3 = document.getElementById("q3");
-                console.log();
                 if (page.answers.length==3)
                 {
-                    q3.style.display='inline-block';
-                    q3.innerText = page.answers[2].answer
+                    a3.style.display='inline-block';
+                    a3.innerText = page.answers[2].answer
+                    a3.setAttribute('data-score', page.answers[2].score.toString());
+                    a3.setAttribute('data-pageId', page.answers[2].pageId?.toString()); 
+                    if (page.answers[2].disableAnswer!=undefined)
+                    {
+                        a3.setAttribute('data-disableAnswer', page.answers[2].disableAnswer.toString()); 
+                    }
+                    
                 }
                 else 
                 {
-                    q3.style.display='none';
+                    a3.style.display='none';
                 }
 
-                q1.innerText = page.answers[0].answer;
-                q2.innerText = page.answers[1].answer;
+                a1.innerText = page.answers[0].answer;
+                a2.innerText = page.answers[1].answer;
 
+                a1.setAttribute('data-score', page.answers[0].score.toString());
+                a2.setAttribute('data-score', page.answers[1].score.toString());   
+                
+                if (page.answers[0].disableAnswer!=undefined) {
+                        a1.setAttribute('data-disableAnswer', page.answers[0].disableAnswer?.toString()); 
+                }
+                if (page.answers[1].disableAnswer!=undefined) {
+                    a2.setAttribute('data-disableAnswer', page.answers[1].disableAnswer?.toString()); 
+                }
+
+                a1.setAttribute('data-pageId', page.answers[0].pageId?.toString());
+                a2.setAttribute('data-pageId', page.answers[1].pageId?.toString()); 
+
+                
             }
 
             let init = function (){
                 const startingPage = {
                         pageId:1, question:"Would you like to payoff your debt?",
-                        answers:[
-                                 {pageId:2, answer:"Yes"},
-                                 {pageId:3, answer:"No"}
-                                ]
+                        answers:[{answer:"Yes", pageId:1001, score:1},{ answer:"No", pageId:1001, score:-1}]
                     };
             
                 setPageElements(startingPage);
 
-                document.getElementById('q1').addEventListener('click', function (event) {
-                    // do something
-                });
+                document.getElementById('a1').addEventListener('click', answerClicked);
+                document.getElementById('a2').addEventListener('click', answerClicked);
+                document.getElementById('a3').addEventListener('click', answerClicked);
+            }
+
+            function answerClicked(event){
+                                
+                const answer = event.srcElement;
+                console.log("answerClicked:", answer);
+            
+                const score = answer.getAttribute('data-score') || 0;
+                const disableAnswer = answer.getAttribute('data-disableAnswer') || -1;
+                const pageId = answer.getAttribute('data-pageId') || 0;
+
+                if (pageId=="undefined" || pageId==0){
+                    return;
+                }
+                
+
+                const page = pages.filter((pg) => pg.page.pageId==pageId)[0].page;
+
+                console.log("answerClicked.disabledAnswer", disableAnswer);
+                var answerDisabled = answer.classList.contains("disabledAnswer");
+                console.log("answerClicked.classListContains.answerDisabled", answerDisabled);
+
+                if (!answer.classList.contains("disabledAnswer")){
+                    setPageElements(page, score, disableAnswer)
+                }
             }
 
 
@@ -101,11 +169,13 @@
 
     </head>
 <body>
+    <span id="score" data-score="0"></span>
+    <span id="currentPageId" data-pageId="0"></span>
     <h1 id="question">Hey John, get to work and type faster?</h1>
     <div style="margin-top: 60px;">
-    <div id="q1" class="answers">Q1</div>
-    <div id="q2" class="answers">Q2</div>
-    <div id="q3" class="answers" style="display:none;">Q3</div>
+    <div id="a1" class="answers">a1</div>
+    <div id="a2" class="answers">a2</div>
+    <div id="a3" class="answers" style="display:none;">a3</div>
 </div>
 </body>
 </html>
